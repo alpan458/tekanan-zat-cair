@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tekanan Zat Cair | MTsN 1 Kota Malang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'serif'],
+                    },
+                    colors: {
+                        primary: '#0284c7',   // Ocean Blue 600
+                        secondary: '#0ea5e9', // Ocean Blue 500
+                        dark: '#0369a1',      // Ocean Blue 700
+                        deep: '#0c4a6e',      // Ocean Blue 900
+                        light: '#f0f9ff',     // Ocean Blue 50
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeIn 0.5s; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+
+        /* Equation Styling */
+        .equation {
+            display: inline-flex; align-items: center; justify-content: center;
+            font-family: 'Courier New', Courier, monospace; font-size: 1.25rem; font-weight: bold;
+        }
+        .fraction { display: flex; flex-direction: column; align-items: center; margin: 0 0.5rem; }
+        .numerator { border-bottom: 2px solid #1f2937; padding: 0 0.2rem; }
+        .denominator { padding: 0 0.2rem; }
+
+        /* Game & Lab Canvas Animations */
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.6)); }
+            50% { filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.9)); }
+        }
+        .glow-effect { animation: pulseGlow 2s infinite; }
+        
+        /* Water Surface Wave */
+        .wave {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C150,90 350,-40 500,50 C650,140 900,10 1200,40 L1200,120 L0,120 Z' fill='%20%230284c7' opacity='0.3'%3E%3C/path%3E%3C/svg%3E");
+            background-size: 1200px 100%;
+            animation: waveAnim 10s linear infinite;
+        }
+        @keyframes waveAnim {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1200px; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-gradient-to-r from-deep via-dark to-primary text-white shadow-xl z-20 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/20 shadow-inner">
+                        <i class="fas fa-water text-3xl text-sky-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-black tracking-tight">Tekanan Zat Cair</h1>
+                        <p class="text-xs md:text-sm text-sky-200 font-medium">Disusun oleh: Alpan Ibrahim S.Si. | MTsN 1 Kota Malang</p>
+                    </div>
+                </div>
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="md:hidden text-white hover:text-sky-200 focus:outline-none p-2">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:block bg-deep/90 backdrop-blur-md border-t border-sky-800/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-2">
+                    <button onclick="navigate('home')" class="nav-btn bg-sky-700/80 px-4 py-3 text-sm font-semibold hover:bg-sky-600 transition flex items-center rounded-t-lg" data-target="home"><i class="fas fa-home mr-2"></i> Beranda</button>
+                    <button onclick="navigate('materi')" class="nav-btn px-4 py-3 text-sm font-semibold hover:bg-sky-600 transition flex items-center rounded-t-lg" data-target="materi"><i class="fas fa-book-open mr-2"></i> Materi Lengkap</button>
+                    <button onclick="navigate('lab')" class="nav-btn px-4 py-3 text-sm font-semibold hover:bg-sky-600 transition flex items-center rounded-t-lg" data-target="lab"><i class="fas fa-flask mr-2"></i> Virtual Lab</button>
+                    <button onclick="navigate('game')" class="nav-btn px-4 py-3 text-sm font-semibold hover:bg-sky-600 transition flex items-center rounded-t-lg" data-target="game"><i class="fas fa-gamepad mr-2"></i> Game Seru</button>
+                    <button onclick="navigate('quiz')" class="nav-btn px-4 py-3 text-sm font-semibold hover:bg-sky-600 transition flex items-center rounded-t-lg" data-target="quiz"><i class="fas fa-tasks mr-2"></i> Kuis (20 Soal)</button>
+                </div>
+            </div>
+        </nav>
+        <!-- Mobile Navigation Menu -->
+        <nav id="mobile-nav" class="hidden md:hidden bg-deep border-t border-sky-800">
+            <div class="flex flex-col px-4 pt-2 pb-3 space-y-1">
+                <button onclick="navigate('home'); toggleMobileMenu()" class="nav-btn text-left px-3 py-2 rounded-md text-base font-medium hover:bg-sky-700 transition"><i class="fas fa-home mr-2"></i> Beranda</button>
+                <button onclick="navigate('materi'); toggleMobileMenu()" class="nav-btn text-left px-3 py-2 rounded-md text-base font-medium hover:bg-sky-700 transition"><i class="fas fa-book-open mr-2"></i> Materi Lengkap</button>
+                <button onclick="navigate('lab'); toggleMobileMenu()" class="nav-btn text-left px-3 py-2 rounded-md text-base font-medium hover:bg-sky-700 transition"><i class="fas fa-flask mr-2"></i> Virtual Lab</button>
+                <button onclick="navigate('game'); toggleMobileMenu()" class="nav-btn text-left px-3 py-2 rounded-md text-base font-medium hover:bg-sky-700 transition"><i class="fas fa-gamepad mr-2"></i> Game Seru</button>
+                <button onclick="navigate('quiz'); toggleMobileMenu()" class="nav-btn text-left px-3 py-2 rounded-md text-base font-medium hover:bg-sky-700 transition"><i class="fas fa-tasks mr-2"></i> Kuis (20 Soal)</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow overflow-y-auto pb-12">
+        
+        <!-- HOME PAGE -->
+        <section id="home" class="page-content active max-w-6xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col md:flex-row">
+                <div class="p-8 md:p-12 md:w-3/5 flex flex-col justify-center">
+                    <span class="inline-block px-3 py-1 bg-sky-100 text-sky-800 font-bold rounded-full text-xs uppercase tracking-wider mb-3 w-max">
+                        <i class="fas fa-atom mr-1"></i> IPA Kelas 8 MTs / SMP
+                    </span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-4">
+                        Menyelami Keajaiban <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-blue-800">Tekanan Zat Cair</span>
+                    </h2>
+                    <p class="text-slate-600 text-base md:text-lg mb-8 leading-relaxed">
+                        Mengapa semakin dalam kita menyelam, telinga terasa sakit? Bagaimana raksasa kapal besi seberat puluhan ribu ton bisa mengapung tenang di samudra? Dan bagaimana fenomena kedalaman laut dijelaskan secara menakjubkan dalam Al-Qur'an?
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="navigate('materi')" class="bg-primary hover:bg-dark text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-sky-500/30 transition transform hover:-translate-y-0.5 flex items-center text-lg">
+                            Mulai Berlayar Belajar <i class="fas fa-arrow-right ml-3"></i>
+                        </button>
+                        <button onclick="navigate('lab')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 px-6 rounded-xl transition flex items-center">
+                            <i class="fas fa-flask text-sky-600 mr-2"></i> Uji Coba Lab
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-2/5 bg-gradient-to-br from-sky-500 via-blue-600 to-deep p-8 flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 wave opacity-30"></div>
+                    <!-- Custom Interactive SVG Illustration -->
+                    <div class="relative z-10 text-center text-white">
+                        <div class="relative inline-block my-4">
+                            <svg viewBox="0 0 200 200" class="w-64 h-64 drop-shadow-2xl mx-auto">
+                                <circle cx="100" cy="100" r="90" fill="#0284c7" opacity="0.3"/>
+                                <!-- Submarine SVG -->
+                                <path d="M 40,110 C 40,80 80,75 130,75 C 170,75 180,95 180,110 C 180,125 170,140 130,140 C 80,140 40,130 40,110 Z" fill="#f59e0b" stroke="#d97706" stroke-width="4"/>
+                                <!-- Periscope -->
+                                <path d="M 110,75 L 110,50 L 125,50" fill="none" stroke="#d97706" stroke-width="5" stroke-linecap="round"/>
+                                <!-- Propeller -->
+                                <path d="M 30,100 L 40,110 L 30,120 Z" fill="#ef4444"/>
+                                <!-- Portholes -->
+                                <circle cx="90" cy="105" r="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+                                <circle cx="120" cy="105" r="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+                                <circle cx="150" cy="105" r="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+                                <!-- Bubbles -->
+                                <circle cx="165" cy="80" r="4" fill="#ffffff" opacity="0.7"/>
+                                <circle cx="175" cy="65" r="6" fill="#ffffff" opacity="0.6"/>
+                                <circle cx="180" cy="45" r="8" fill="#ffffff" opacity="0.5"/>
+                            </svg>
+                        </div>
+                        <p class="font-bold text-sky-100 text-lg">P = ρ × g × h</p>
+                        <p class="text-xs text-sky-200">Kedalaman (h) Berbanding Lurus dengan Tekanan!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Cards Grid -->
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 hover:shadow-lg transition flex items-start space-x-4">
+                    <div class="bg-sky-100 p-3.5 rounded-xl text-sky-600 text-2xl"><i class="fas fa-water"></i></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Tekanan Hidrostatis</h3>
+                        <p class="text-sm text-slate-500 mt-1">Pahami alasan ilmiah mengapa kedalaman fluida menciptakan tekanan yang sangat besar.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 hover:shadow-lg transition flex items-start space-x-4">
+                    <div class="bg-emerald-100 p-3.5 rounded-xl text-emerald-600 text-2xl"><i class="fas fa-mosque"></i></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Tafsir & Sains Islam</h3>
+                        <p class="text-sm text-slate-500 mt-1">Mengungkap rahasia samudra dan gelombang bertingkat dalam QS. An-Nur ayat 40.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 hover:shadow-lg transition flex items-start space-x-4">
+                    <div class="bg-indigo-100 p-3.5 rounded-xl text-indigo-600 text-2xl"><i class="fas fa-project-diagram"></i></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Analisis Tingkat Atas</h3>
+                        <p class="text-sm text-slate-500 mt-1">Penjelasan konsep lanjutan seperti Tekanan Mutlak, Gaya Apung, dan Dinamika Fluida.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MATERI PAGE -->
+        <section id="materi" class="page-content max-w-5xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden p-6 md:p-10 relative">
+                
+                <!-- Materi Pagination Tabs -->
+                <div class="flex border-b border-slate-200 mb-8 overflow-x-auto no-scrollbar">
+                    <button onclick="showMateriPage(1)" id="tab-mat-1" class="mat-tab py-3 px-5 text-primary border-b-2 border-primary font-bold whitespace-nowrap text-sm md:text-base">
+                        1. Tekanan Hidrostatis
+                    </button>
+                    <button onclick="showMateriPage(2)" id="tab-mat-2" class="mat-tab py-3 px-5 text-slate-500 hover:text-primary transition whitespace-nowrap text-sm md:text-base">
+                        2. Hukum Pascal & Archimedes
+                    </button>
+                    <button onclick="showMateriPage(3)" id="tab-mat-3" class="mat-tab py-3 px-5 text-slate-500 hover:text-primary transition whitespace-nowrap text-sm md:text-base">
+                        3. Analisis Lanjut Fluida
+                    </button>
+                    <button onclick="showMateriPage(4)" id="tab-mat-4" class="mat-tab py-3 px-5 text-slate-500 hover:text-primary transition whitespace-nowrap text-sm md:text-base flex items-center">
+                        <i class="fas fa-star text-amber-400 mr-2"></i> Integrasi Sains & Islam
+                    </button>
+                </div>
+
+                <!-- Page 1: Tekanan Hidrostatis -->
+                <div id="mat-page-1" class="mat-content fade-in">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="bg-sky-100 text-sky-800 text-xs font-extrabold px-3 py-1 rounded-full">KONSEP UTAMA</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Apa Itu Tekanan Hidrostatis?</h2>
+                    </div>
+
+                    <p class="text-slate-700 leading-relaxed mb-6">
+                        Pernahkah kamu berenang dan mencoba menyelam hingga ke dasar kolam yang dalam? Pasti telingamu rasanya seperti tertekan atau 'pengap', bukan? Kenapa bisa begitu? Karena air di atas tubuhmu memiliki <strong>berat</strong>, dan berat air tersebut menekan tubuhmu ke segala arah! Tekanan inilah yang dinamakan <strong>Tekanan Hidrostatis</strong>.
+                    </p>
+
+                    <div class="bg-gradient-to-r from-sky-50 to-blue-50 border-l-4 border-sky-500 p-5 rounded-r-2xl mb-8">
+                        <h4 class="font-bold text-sky-900 text-lg mb-1"><i class="fas fa-lightbulb mr-2 text-amber-500"></i>Definisi Tekanan Hidrostatis:</h4>
+                        <p class="text-slate-700">Tekanan yang diberikan oleh zat cair yang diam (statis) kepada suatu benda di dalamnya pada kedalaman tertentu, disebabkan oleh gaya gravitasi bumi yang menarik massa zat cair tersebut.</p>
+                    </div>
+
+                    <!-- Formula Box -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl mb-8 shadow-inner">
+                        <h3 class="text-center font-bold text-sky-400 uppercase tracking-widest text-xs mb-4">Rumus Utama Tekanan Hidrostatis</h3>
+                        <div class="flex flex-col md:flex-row items-center justify-around gap-6">
+                            <div class="text-3xl md:text-4xl font-mono font-bold text-amber-400 bg-slate-800 px-6 py-4 rounded-xl border border-slate-700 shadow-md">
+                                P<sub class="text-xs text-sky-300">h</sub> = ρ × g × h
+                            </div>
+                            <div class="text-sm space-y-2 text-slate-300">
+                                <p><strong class="text-sky-300 font-mono">P<sub class="text-xs">h</sub></strong> = Tekanan Hidrostatis (Pascal / N/m²)</p>
+                                <p><strong class="text-amber-300 font-mono">ρ (Rho)</strong> = Massa Jenis Zat Cair (kg/m³)</p>
+                                <p><strong class="text-emerald-300 font-mono">g</strong> = Percepatan Gravitasi (m/s² atau N/kg, sekitar 9.8 atau 10 m/s²)</p>
+                                <p><strong class="text-rose-300 font-mono">h</strong> = Kedalaman dari permukaan zat cair (meter)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">3 Kunci Penting Tekanan Hidrostatis:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                            <div class="text-sky-600 font-bold text-lg mb-1">1. Faktor Kedalaman (h)</div>
+                            <p class="text-sm text-slate-600">Semakin <strong>DALAM</strong> posisi benda dari permukaan air, maka tekanannya akan semakin <strong>BESAR</strong>.</p>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                            <div class="text-sky-600 font-bold text-lg mb-1">2. Massa Jenis (ρ)</div>
+                            <p class="text-sm text-slate-600">Semakin kental/massa jenis zat cair tinggi (misal: Raksa vs Air), semakin besar tekanan yang dihasilkan pada kedalaman sama.</p>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                            <div class="text-sky-600 font-bold text-lg mb-1">3. Segala Arah</div>
+                            <p class="text-sm text-slate-600">Tekanan hidrostatis menekan benda ke <strong>segala arah</strong> (atas, bawah, samping) dengan besaran sama pada kedalaman sejajar.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center space-x-4">
+                        <i class="fas fa-building-columns text-3xl text-amber-600"></i>
+                        <div>
+                            <h4 class="font-bold text-amber-900">Aplikasi Nyata: Bendungan Air</h4>
+                            <p class="text-sm text-amber-800">Mengapa tembok bendungan bagian bawah selalu dibangun jauh lebih tebal daripada bagian atasnya? Ya! Karena tekanan air di dasar sangat raksasa akibat kedalamannya!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2: Hukum Pascal & Archimedes -->
+                <div id="mat-page-2" class="mat-content fade-in hidden">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-6">Dua Hukum Raksasa Fluida: Pascal & Archimedes</h2>
+
+                    <!-- Hukum Pascal -->
+                    <div class="bg-white border border-sky-200 rounded-2xl p-6 shadow-sm mb-8">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="bg-blue-600 text-white font-bold px-3 py-1 rounded-lg text-xs">HUKUM PASCAL</span>
+                            <h3 class="text-xl font-bold text-slate-800">Tekanan yang Diteruskan Sama Rata</h3>
+                        </div>
+                        <p class="text-slate-700 leading-relaxed mb-4">
+                            Blaise Pascal menemukan bahwa: <em>"Tekanan yang diberikan pada zat cair dalam ruang tertutup akan diteruskan ke segala arah dengan sama besar."</em>
+                        </p>
+                        <div class="bg-sky-50 p-4 rounded-xl flex flex-col md:flex-row justify-around items-center mb-4">
+                            <div class="equation font-bold text-xl text-sky-800 my-2">
+                                <div class="fraction">
+                                    <span class="numerator">F₁</span>
+                                    <span class="denominator">A₁</span>
+                                </div>
+                                =
+                                <div class="fraction">
+                                    <span class="numerator">F₂</span>
+                                    <span class="denominator">A₂</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-600 max-w-md">Dengan memberi gaya kecil ($F_1$) pada penampang kecil ($A_1$), kita bisa menghasilkan gaya raksasa ($F_2$) pada penampang besar ($A_2$)!</p>
+                        </div>
+                        <p class="text-xs text-slate-500"><i class="fas fa-check-circle text-emerald-500 mr-1"></i><strong>Penerapan:</strong> Dongkrak hidrolik pencuci mobil, rem hidrolik mobil/motor, mesin press hidrolik.</p>
+                    </div>
+
+                    <!-- Hukum Archimedes -->
+                    <div class="bg-white border border-emerald-200 rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="bg-emerald-600 text-white font-bold px-3 py-1 rounded-lg text-xs">HUKUM ARCHIMEDES</span>
+                            <h3 class="text-xl font-bold text-slate-800">Gaya Apung (Gaya ke Atas)</h3>
+                        </div>
+                        <p class="text-slate-700 leading-relaxed mb-4">
+                            Archimedes menemukan bahwa saat benda dicelupkan ke dalam zat cair, benda akan mendapatkan <strong>Gaya Ke Atas (Gaya Apung / F<sub class="text-xs">a</sub>)</strong> yang besarnya sama dengan berat zat cair yang dipindahkan!
+                        </p>
+                        
+                        <div class="bg-emerald-50 p-4 rounded-xl text-center mb-4 font-mono font-bold text-emerald-900">
+                            F<sub>a</sub> = ρ<sub>fluida</sub> × g × V<sub>tercelup</sub>
+                        </div>
+
+                        <!-- 3 Conditions Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-emerald-100/50 p-4 rounded-xl text-center">
+                                <i class="fas fa-life-ring text-2xl text-emerald-600 mb-2"></i>
+                                <h4 class="font-bold text-slate-800 text-sm">1. Mengapung</h4>
+                                <p class="text-xs text-slate-600 mt-1">Massa jenis benda <strong>LEBIH KECIL</strong> dari zat cair (ρ<sub>benda</sub> < ρ<sub>cair</sub>)</p>
+                            </div>
+                            <div class="bg-sky-100/50 p-4 rounded-xl text-center">
+                                <i class="fas fa-fish text-2xl text-sky-600 mb-2"></i>
+                                <h4 class="font-bold text-slate-800 text-sm">2. Melayang</h4>
+                                <p class="text-xs text-slate-600 mt-1">Massa jenis benda <strong>SAMA DENGAN</strong> zat cair (ρ<sub>benda</sub> = ρ<sub>cair</sub>)</p>
+                            </div>
+                            <div class="bg-rose-100/50 p-4 rounded-xl text-center">
+                                <i class="fas fa-anchor text-2xl text-rose-600 mb-2"></i>
+                                <h4 class="font-bold text-slate-800 text-sm">3. Tenggelam</h4>
+                                <p class="text-xs text-slate-600 mt-1">Massa jenis benda <strong>LEBIH BESAR</strong> dari zat cair (ρ<sub>benda</sub> > ρ<sub>cair</sub>)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3: Analisis Tingkat Lanjut -->
+                <div id="mat-page-3" class="mat-content fade-in hidden">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-4">Analisis Tingkat Atas: Tekanan Mutlak & Dinamika Fluida</h2>
+                    <p class="text-slate-700 leading-relaxed mb-6">
+                        Mari melangkah lebih jauh ke jenjang SMA/Perkuliahan! Di dunia nyata, permukaan zat cair diselimuti oleh lapisan udara atmosfer bumi kita.
+                    </p>
+
+                    <div class="space-y-6">
+                        <!-- Card 1 -->
+                        <div class="bg-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-2xl">
+                            <h3 class="font-bold text-indigo-900 text-lg mb-2">1. Tekanan Mutlak (Absolute Pressure)</h3>
+                            <p class="text-sm text-slate-700 leading-relaxed">
+                                Tekanan total yang dialami oleh penyelam di kedalaman air bukan hanya dari berat air di atasnya, melainkan juga menanggung <strong>Tekanan Udara Atmosfer (P<sub>0</sub>)</strong> yang menekan permukaan air!
+                            </p>
+                            <div class="my-3 font-mono font-bold text-indigo-900 text-base bg-white px-4 py-2 rounded-lg inline-block border border-indigo-200">
+                                P<sub>mutlak</sub> = P<sub>0</sub> + P<sub>h</sub> = P<sub>0</sub> + (ρ × g × h)
+                            </div>
+                            <p class="text-xs text-slate-500">*Tekanan atmosfer standar di permukaan laut (P<sub>0</sub>) = 1 atm ≈ 1.013 × 10⁵ Pascal.</p>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-r-2xl">
+                            <h3 class="font-bold text-blue-900 text-lg mb-2">2. Pipa U dan Barometer Raksa</h3>
+                            <p class="text-sm text-slate-700 leading-relaxed">
+                                Berdasarkan <strong>Hukum Utama Hidrostatis</strong>, semua titik yang terletak pada bidang datar yang sama di dalam zat cair yang sejenis memiliki tekanan hidrostatis yang sama. Ini dipakai untuk mengukur massa jenis cairan tak dikenal memakai Pipa U:
+                            </p>
+                            <div class="my-3 font-mono font-bold text-blue-900 text-base bg-white px-4 py-2 rounded-lg inline-block border border-blue-200">
+                                ρ₁ × h₁ = ρ₂ × h₂
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="bg-teal-50 border-l-4 border-teal-600 p-5 rounded-r-2xl">
+                            <h3 class="font-bold text-teal-900 text-lg mb-2">3. Pengenalan Persamaan Kontinuitas & Bernoulli</h3>
+                            <p class="text-sm text-slate-700 leading-relaxed">
+                                Ketika cairan mulai bergerak (Fluida Dinamis), berlaku Hukum Bernoulli: <em>"Semakin cepat kelajuan fluida, maka tekanannya akan semakin kecil."</em> Inilah prinsip penting yang membuat sayap pesawat terbang bisa terangkat ke udara!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 4: Integrasi Islam -->
+                <div id="mat-page-4" class="mat-content fade-in hidden">
+                    <div class="text-center mb-8">
+                        <span class="text-emerald-600 text-3xl"><i class="fas fa-star-and-crescent"></i></span>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-2">Harmoni Sains Fluida & Hikmah Al-Qur'an</h2>
+                        <p class="text-slate-600 text-sm mt-1">Mengagumi Keagungan Sang Maha Pencipta melalui Fenomena Lautan</p>
+                    </div>
+
+                    <!-- Qur'an Ayat 1 -->
+                    <div class="bg-gradient-to-br from-emerald-900 to-teal-950 text-white p-6 md:p-8 rounded-3xl shadow-xl mb-8 relative overflow-hidden">
+                        <i class="fas fa-water absolute -right-10 -bottom-10 text-emerald-800/20 text-9xl"></i>
+                        <div class="relative z-10">
+                            <span class="bg-emerald-500/30 text-emerald-200 text-xs font-bold px-3 py-1 rounded-full border border-emerald-400/30">QS. AN-NUR: 40</span>
+                            <h3 class="text-xl font-bold text-emerald-300 mt-2 mb-4">Misteri Kegelapan & Tekanan Laut Dalam</h3>
+                            
+                            <p class="text-right font-arabic text-2xl md:text-3xl leading-loose mb-4 text-emerald-100">
+                                أَوْ كَظُلُمَاتٍ فِي بَحْرٍ لُّجِّيٍّ يَغْشَاهُ مَوْجٌ مِّن فَوْقِهِ مَوْجٌ مِّن فَوْقِهِ سَحَابٌ ۚ ظُلُمَاتٌ بَعْضُهَا فَوْقَ بَعْضٍ
+                            </p>
+                            
+                            <p class="text-sm text-emerald-100 italic mb-4 leading-relaxed">
+                                "Atau (keburukan orang-orang kafir) seperti gelap gulita di laut yang dalam, yang diliputi oleh gelombang, yang di atasnya ada gelombang (pula), di atasnya (lagi) ada awan; gelap gulita yang tindih-mentindih..."
+                            </p>
+                            
+                            <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl text-xs text-emerald-100 leading-relaxed border border-white/10">
+                                <strong>Fakta Ilmiah Al-Qur'an:</strong> Istilah <em>"Bahrin Lujjiyyn"</em> (Laut yang Dalam). Istilah "gelombang di atas gelombang" baru terbukti abad ke-20 dengan ditemukannya <em>Internal Waves</em> (Gelombang Bawah Laut) pada batas kedalaman kerapatan air laut yang berbeda, di mana tekanan air sangat tinggi dan cahaya tak lagi bisa menembus!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spiritual Analogy -->
+                    <div class="bg-amber-50 border border-amber-200 p-6 rounded-2xl">
+                        <h3 class="font-bold text-amber-900 text-lg mb-3 flex items-center">
+                            <i class="fas fa-heart text-rose-500 mr-2"></i> Renungan: "Tekanan Hidrostatis Niat & Keikhlasan"
+                        </h3>
+                        <p class="text-sm text-slate-700 leading-relaxed mb-3">
+                            Rumus Tekanan Hidrostatis adalah <strong>P = ρ × g × h</strong>.
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Mari kita maknai: Semakin <strong>DALAM (h)</strong> seseorang menyelam dalam samudra ilmu dan keikhlasan hati, semakin besar pula <strong>Tekanan (P)</strong> iman dan ketundukannya kepada Allah SWT. Orang yang berilmu dalam tidak akan sombong mengapung di permukaan, melainkan semakin merendah dengan penuh khusyuk di hadapan Sang Khaliq.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons inside Material -->
+                <div class="flex justify-between mt-10 pt-6 border-t border-slate-200">
+                    <button id="btn-prev-mat" onclick="changeMateri(-1)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2.5 px-5 rounded-xl hidden transition flex items-center">
+                        <i class="fas fa-chevron-left mr-2"></i> Sebelumnya
+                    </button>
+                    <button id="btn-next-mat" onclick="changeMateri(1)" class="bg-primary hover:bg-dark text-white font-bold py-2.5 px-6 rounded-xl ml-auto transition flex items-center shadow-md">
+                        Selanjutnya <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIRTUAL LAB PAGE -->
+        <section id="lab" class="page-content max-w-6xl mx-auto px-4 py-8">
+            <div class="text-center mb-8">
+                <span class="bg-sky-100 text-sky-800 font-extrabold text-xs px-3 py-1 rounded-full uppercase">Simulasi Interaktif</span>
+                <h2 class="text-3xl font-black text-slate-900 mt-2">Laboratorium Virtual Fluida</h2>
+                <p class="text-slate-600 text-sm mt-1">Uji coba langsung variabel Tekanan Hidrostatis & Hukum Pascal secara real-time!</p>
+            </div>
+
+            <!-- Lab Tabs Switcher -->
+            <div class="flex justify-center mb-6">
+                <div class="bg-slate-200 p-1 rounded-2xl flex space-x-1">
+                    <button id="lab-tab-1" onclick="switchLabMode('hydro')" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-white text-sky-700 shadow-sm transition">
+                        <i class="fas fa-water mr-2"></i> Tekanan Hidrostatis (P = ρ.g.h)
+                    </button>
+                    <button id="lab-tab-2" onclick="switchLabMode('pascal')" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 hover:text-slate-900 transition">
+                        <i class="fas fa-compress-arrows-alt mr-2"></i> Dongkrak Hidrolik (Pascal)
+                    </button>
+                </div>
+            </div>
+
+            <!-- SIMULATION 1: HYDROSTATIC PRESSURE -->
+            <div id="sim-hydro-container" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col md:flex-row">
+                <!-- Controls Side -->
+                <div class="md:w-1/3 bg-slate-50 p-6 border-r border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center border-b pb-2">
+                            <i class="fas fa-sliders mr-2 text-sky-600"></i> Variable Experiment
+                        </h3>
+
+                        <!-- Liquid Type Selector -->
+                        <div class="mb-5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Jenis Zat Cair (Massa Jenis / ρ)</label>
+                            <select id="sim-fluid" onchange="updateLabHydro()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-sky-500 outline-none">
+                                <option value="1000" selected>Air Murni (ρ = 1000 kg/m³)</option>
+                                <option value="1025">Air Laut (ρ = 1025 kg/m³)</option>
+                                <option value="800">Minyak Goreng (ρ = 800 kg/m³)</option>
+                                <option value="13600">Raksa / Mercury (ρ = 13600 kg/m³)</option>
+                                <option value="1420">Madu Murni (ρ = 1420 kg/m³)</option>
+                            </select>
+                        </div>
+
+                        <!-- Depth Slider (h) -->
+                        <div class="mb-5">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-bold text-slate-700 uppercase">Kedalaman Penyelam (h)</label>
+                                <span class="text-sm font-bold text-sky-600 font-mono"><span id="val-depth">5.0</span> m</span>
+                            </div>
+                            <input type="range" id="slider-depth" min="0.5" max="10.0" step="0.5" value="5.0" oninput="updateLabHydro()" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                        </div>
+
+                        <!-- Gravity Slider (g) -->
+                        <div class="mb-5">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-bold text-slate-700 uppercase">Gravitasi (g)</label>
+                                <span class="text-sm font-bold text-indigo-600 font-mono"><span id="val-gravity">9.8</span> m/s²</span>
+                            </div>
+                            <input type="range" id="slider-gravity" min="1.6" max="24.8" step="0.1" value="9.8" oninput="updateLabHydro()" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <span>Bulan (1.6)</span>
+                                <span>Bumi (9.8)</span>
+                                <span>Jupiter (24.8)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculated Results Card -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-inner mt-4">
+                        <div class="text-xs text-sky-400 uppercase font-bold tracking-wider mb-2">Hasil Ukur Sensor Barometer:</div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs text-slate-300">Tekanan Hidrostatis (P<sub>h</sub>):</span>
+                            <span class="font-bold text-amber-400 font-mono text-base"><span id="res-ph">49000</span> Pa</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-slate-700 pt-2 mt-2">
+                            <span class="text-xs text-slate-300">Tekanan Mutlak Total (P<sub>mutlak</sub>):</span>
+                            <span class="font-extrabold text-sky-300 font-mono text-lg"><span id="res-pabs">150300</span> Pa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Visual Canvas Side -->
+                <div class="md:w-2/3 p-6 bg-slate-900 relative flex flex-col justify-between items-center overflow-hidden min-h-[420px]">
+                    <!-- Atmosphere Layer Indicator -->
+                    <div class="w-full bg-sky-200/20 text-sky-200 text-xs py-1 px-3 rounded-md text-center font-mono border border-sky-300/30">
+                        <i class="fas fa-cloud mr-1"></i> Lapisan Atmosfer Udara (P₀ = 101,300 Pa)
+                    </div>
+
+                    <!-- Water Tank Visualization Container -->
+                    <div id="water-tank" class="w-full flex-grow my-4 rounded-2xl relative border-2 border-sky-400/50 overflow-hidden flex flex-col justify-end transition-colors duration-500" style="background: linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #0c4a6e 100%);">
+                        <!-- Depth Scale Markers -->
+                        <div class="absolute top-0 right-2 bottom-0 flex flex-col justify-between text-[10px] text-sky-200 font-mono py-2 z-10 border-r border-dashed border-sky-300/40 pr-1">
+                            <span>0m (Permukaan)</span>
+                            <span>2.5m</span>
+                            <span>5.0m</span>
+                            <span>7.5m</span>
+                            <span>10.0m (Dasar)</span>
+                        </div>
+
+                        <!-- Submarine / Diver Element -->
+                        <div id="sub-element" class="absolute left-1/2 -translate-x-1/2 transition-all duration-300 flex items-center space-x-3 z-20" style="top: 50%;">
+                            <!-- Diver SVG / Icon -->
+                            <div class="bg-amber-400 text-slate-900 p-2.5 rounded-full shadow-lg border-2 border-white glow-effect">
+                                <i class="fas fa-user-ninja text-xl"></i>
+                            </div>
+                            <!-- Live Pressure Gauge Bubble -->
+                            <div class="bg-white/95 backdrop-blur-md p-2 rounded-xl shadow-2xl border border-sky-300 text-slate-900 text-xs font-bold font-mono">
+                                <div class="text-[10px] text-sky-600">PH-SENSOR</div>
+                                <span id="gauge-live-text" class="text-rose-600 font-black">49.0 kPa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Bar -->
+                    <div class="w-full flex justify-between items-center text-xs text-sky-200 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
+                        <span><i class="fas fa-info-circle text-sky-400 mr-1"></i> Kedalaman (h) dikukur dari permukaan air.</span>
+                        <span id="hydro-status" class="font-bold text-amber-400">Tekanan Sedang</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATION 2: PASCAL'S HYDRAULIC PRESS (Hidden by default) -->
+            <div id="sim-pascal-container" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden hidden p-6 md:p-8">
+                <h3 class="font-bold text-xl text-slate-800 mb-2 text-center">Simulasi Dongkrak Hidrolik</h3>
+                <p class="text-center text-slate-600 text-sm mb-8">Berikan gaya ($F_1$) pada piston kecil ($A_1$) untuk mengangkat mobil berat ($F_2$) pada piston besar ($A_2$)!</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <!-- Controls -->
+                    <div class="space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div>
+                            <div class="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                <span>Gaya Input Piston 1 (F₁):</span>
+                                <span class="text-sky-600 font-mono"><span id="val-f1">500</span> N</span>
+                            </div>
+                            <input type="range" id="slider-f1" min="100" max="2000" step="50" value="500" oninput="updateLabPascal()" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                <span>Luas Penampang Piston 1 (A₁):</span>
+                                <span class="text-sky-600 font-mono"><span id="val-a1">0.1</span> m²</span>
+                            </div>
+                            <input type="range" id="slider-a1" min="0.05" max="0.5" step="0.05" value="0.1" oninput="updateLabPascal()" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                <span>Luas Penampang Piston 2 (A₂):</span>
+                                <span class="text-indigo-600 font-mono"><span id="val-a2">2.0</span> m²</span>
+                            </div>
+                            <input type="range" id="slider-a2" min="0.5" max="5.0" step="0.1" value="2.0" oninput="updateLabPascal()" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                        </div>
+                    </div>
+
+                    <!-- Interactive Result & Visual -->
+                    <div class="bg-gradient-to-br from-slate-900 to-sky-950 p-8 rounded-3xl text-white text-center flex flex-col justify-center items-center relative min-h-[300px]">
+                        <div class="text-xs text-sky-400 font-bold uppercase tracking-widest mb-2">Gaya Angkat Dihasilkan (F₂):</div>
+                        <div class="text-4xl md:text-5xl font-mono font-black text-amber-400 mb-4 drop-shadow">
+                            <span id="res-f2">10000</span> Newton
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl text-xs text-sky-200 border border-white/10 max-w-xs">
+                            <p class="font-bold text-white mb-1">Faktor Kelipatan Gaya: <span id="res-mult" class="text-amber-400">20</span>× Lipat!</p>
+                            <p>Kamu berhasil mengangkat beban setara <strong id="res-mass-car" class="text-white">1,000 kg</strong> (1 Ton Mobil)!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAME PAGE -->
+        <section id="game" class="page-content max-w-4xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <span class="bg-amber-100 text-amber-800 font-extrabold text-xs px-3 py-1 rounded-full uppercase">Game Edukasi</span>
+                    <h2 class="text-3xl font-black text-slate-900 mt-2">Misi Kapal Selam: Menyelam Bebas</h2>
+                    <p class="text-slate-600 text-sm mt-1">Sesuaikan massa jenis ballast tank kapal selam agar kapal bisa <strong>Mengapung, Melayang, atau Tenggelam</strong> mencapai artefak target!</p>
+                </div>
+
+                <!-- Game Canvas Box -->
+                <div class="bg-slate-900 rounded-2xl overflow-hidden relative border-4 border-slate-800 shadow-2xl" style="height: 380px;">
+                    <!-- Water Background -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-sky-500 via-blue-700 to-deep"></div>
+
+                    <!-- Target Artifact -->
+                    <div id="game-target-item" class="absolute left-3/4 -translate-x-1/2 p-3 bg-amber-400 text-slate-900 rounded-2xl shadow-xl font-bold text-xs flex items-center space-x-2 border-2 border-white transition-all duration-500" style="top: 70%;">
+                        <i class="fas fa-gem text-amber-800 text-lg"></i>
+                        <span>ARTEFAK LAUT</span>
+                    </div>
+
+                    <!-- Player Submarine -->
+                    <div id="game-sub" class="absolute left-1/4 -translate-x-1/2 transition-all duration-700 flex flex-col items-center" style="top: 10%;">
+                        <div class="bg-amber-500 text-white p-3 rounded-2xl shadow-2xl border-2 border-amber-300 flex items-center space-x-2">
+                            <i class="fas fa-ship text-xl"></i>
+                            <span class="font-mono font-bold text-xs">SUB-01</span>
+                        </div>
+                        <span id="sub-state-badge" class="bg-slate-900/80 text-sky-300 font-mono text-[10px] px-2 py-0.5 rounded-full mt-1 border border-sky-500/30">Mengapung</span>
+                    </div>
+
+                    <!-- Overlay Game Info HUD -->
+                    <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-700 text-white font-mono text-xs space-y-1">
+                        <div>Massa Jenis Laut: <span class="text-sky-400">1025 kg/m³</span></div>
+                        <div>Massa Jenis Kapal (ρ<sub class="text-[9px]">sub</sub>): <span id="game-rho-sub" class="text-amber-400 font-bold">800 kg/m³</span></div>
+                    </div>
+
+                    <!-- Game Message Box Overlay -->
+                    <div id="game-win-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 hidden z-30">
+                        <i class="fas fa-trophy text-5xl text-amber-400 mb-3 animate-bounce"></i>
+                        <h3 class="text-2xl font-black text-white mb-2">MISI BERHASIL!</h3>
+                        <p class="text-sky-200 text-sm max-w-md mb-6" id="game-win-desc">Kamu berhasil menyamakan massa jenis kapal selam sehingga melayang sempurna tepat di kedalaman artefak!</p>
+                        <button onclick="resetGameMission()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg">
+                            Mainkan Level Berikutnya <i class="fas fa-redo ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Controls Bar -->
+                <div class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <div class="w-full md:w-2/3">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Atur Tangki Pemberat (Ballast Tank) Kapal Selam:</label>
+                        <input type="range" id="game-slider-ballast" min="600" max="1400" step="25" value="800" oninput="updateGameSub()" class="w-full h-3 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        <div class="flex justify-between text-[11px] text-slate-500 font-bold mt-1">
+                            <span>Kosongkan Tangki (ρ < ρ<sub>air</sub>)</span>
+                            <span>Isi Air Laut (ρ > ρ<sub>air</sub>)</span>
+                        </div>
+                    </div>
+                    <button onclick="checkGameMission()" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md whitespace-nowrap">
+                        <i class="fas fa-anchor mr-2"></i> Eksekusi Posisi
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUIZ PAGE -->
+        <section id="quiz" class="page-content max-w-4xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-10">
+                
+                <!-- Quiz Introduction Screen -->
+                <div id="quiz-intro" class="text-center py-6">
+                    <div class="w-20 h-20 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-inner">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-2">Kuis Evaluasi (20 Soal)</h2>
+                    <p class="text-slate-600 text-sm max-w-lg mx-auto mb-8">
+                        Uji pemahamanmu secara menyeluruh tentang Tekanan Hidrostatis, Hukum Pascal, Hukum Archimedes, Analisis Fluida Lanjut, dan Integrasi Islami!
+                    </p>
+                    <button onclick="startQuiz()" class="bg-primary hover:bg-dark text-white font-extrabold text-lg py-4 px-10 rounded-2xl shadow-xl shadow-sky-500/30 transition transform hover:-translate-y-1">
+                        Mulai Kerjakan Kuis <i class="fas fa-play ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Quiz Main Question Container -->
+                <div id="quiz-container" class="hidden">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+                        <span class="font-bold text-slate-500 text-sm">Soal Ke- <span id="q-current" class="text-sky-600 font-mono text-base">1</span> dari 20</span>
+                        <span class="bg-sky-100 text-sky-800 font-bold px-3 py-1 rounded-full text-xs">Skor Sementara: <span id="q-score" class="font-mono">0</span></span>
+                    </div>
+
+                    <div id="question-text" class="text-lg md:text-xl font-bold text-slate-800 mb-6 leading-relaxed">
+                        Pertanyaan akan ditampilkan di sini...
+                    </div>
+
+                    <div id="options-container" class="space-y-3">
+                        <!-- Dynamic Options injected by JS -->
+                    </div>
+
+                    <div id="feedback-container" class="hidden mt-6 p-4 rounded-xl font-bold text-sm text-center"></div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button id="btn-next-q" onclick="nextQuestion()" class="hidden bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-xl transition">
+                            Soal Berikutnya <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Results Screen -->
+                <div id="quiz-result" class="hidden text-center py-8">
+                    <div id="result-icon" class="text-6xl mb-4 text-amber-400"></div>
+                    <h3 class="text-3xl font-black text-slate-900 mb-2">Kuis Selesai!</h3>
+                    <p class="text-slate-500 text-sm mb-4">Nilai Akhir Kamu:</p>
+                    <div class="text-6xl font-black text-primary font-mono mb-6"><span id="final-score">100</span><span class="text-2xl text-slate-400">/100</span></div>
+                    <p id="result-message" class="text-slate-700 font-medium text-base max-w-md mx-auto mb-8 leading-relaxed"></p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="resetQuiz()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 px-6 rounded-xl transition">
+                            <i class="fas fa-redo mr-2"></i> Ulangi Kuis
+                        </button>
+                        <button onclick="navigate('materi')" class="bg-primary hover:bg-dark text-white font-bold py-3 px-6 rounded-xl transition">
+                            <i class="fas fa-book-open mr-2"></i> Pelajari Materi
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-slate-400">Media Ajar Interaktif IPA Kelas 8 MTs / SMP © 2026</p>
+            <p class="text-base font-bold text-sky-400 mt-1">Disusun oleh: Alpan Ibrahim S.Si. | MTsN 1 Kota Malang</p>
+            <p class="text-xs text-slate-500 mt-2">Materi Tekanan Zat Cair, Hukum Pascal, Hukum Archimedes, Analisis Lanjut & Integrasi Islami</p>
+        </div>
+    </footer>
+
+    <script>
+        function navigate(pageId) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.target === pageId) {
+                    btn.classList.add('bg-sky-700');
+                } else {
+                    btn.classList.remove('bg-sky-700');
+                }
+            });
+
+            if(pageId === 'lab') updateLabHydro();
+            if(pageId === 'game') updateGameSub();
+            window.scrollTo(0,0);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-nav').classList.toggle('hidden');
+        }
+
+        let currentMateriPage = 1;
+        const totalMateriPages = 4;
+
+        function showMateriPage(page) {
+            currentMateriPage = page;
+            for(let i=1; i<=totalMateriPages; i++) {
+                document.getElementById(`mat-page-${i}`).classList.add('hidden');
+                let tab = document.getElementById(`tab-mat-${i}`);
+                tab.classList.remove('text-primary', 'border-b-2', 'border-primary', 'font-bold');
+                tab.classList.add('text-slate-500');
+            }
+
+            document.getElementById(`mat-page-${page}`).classList.remove('hidden');
+            let activeTab = document.getElementById(`tab-mat-${page}`);
+            activeTab.classList.add('text-primary', 'border-b-2', 'border-primary', 'font-bold');
+            activeTab.classList.remove('text-slate-500');
+
+            document.getElementById('btn-prev-mat').classList.toggle('hidden', page === 1);
+            
+            let btnNext = document.getElementById('btn-next-mat');
+            if(page === totalMateriPages) {
+                btnNext.innerHTML = 'Uji Coba Virtual Lab <i class="fas fa-flask ml-2"></i>';
+                btnNext.onclick = () => navigate('lab');
+            } else {
+                btnNext.innerHTML = 'Selanjutnya <i class="fas fa-chevron-right ml-2"></i>';
+                btnNext.onclick = () => changeMateri(1);
+            }
+        }
+
+        function changeMateri(dir) {
+            let newPage = currentMateriPage + dir;
+            if(newPage >= 1 && newPage <= totalMateriPages) {
+                showMateriPage(newPage);
+            }
+        }
+
+        function switchLabMode(mode) {
+            if(mode === 'hydro') {
+                document.getElementById('sim-hydro-container').classList.remove('hidden');
+                document.getElementById('sim-pascal-container').classList.add('hidden');
+                document.getElementById('lab-tab-1').className = "px-5 py-2.5 rounded-xl font-bold text-sm bg-white text-sky-700 shadow-sm transition";
+                document.getElementById('lab-tab-2').className = "px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 hover:text-slate-900 transition";
+                updateLabHydro();
+            } else {
+                document.getElementById('sim-hydro-container').classList.add('hidden');
+                document.getElementById('sim-pascal-container').classList.remove('hidden');
+                document.getElementById('lab-tab-2').className = "px-5 py-2.5 rounded-xl font-bold text-sm bg-white text-sky-700 shadow-sm transition";
+                document.getElementById('lab-tab-1').className = "px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 hover:text-slate-900 transition";
+                updateLabPascal();
+            }
+        }
+
+        function updateLabHydro() {
+            let rho = parseFloat(document.getElementById('sim-fluid').value);
+            let depth = parseFloat(document.getElementById('slider-depth').value);
+            let gravity = parseFloat(document.getElementById('slider-gravity').value);
+
+            let ph = rho * gravity * depth;
+            let pAtm = 101300;
+            let pAbs = ph + pAtm;
+
+            document.getElementById('val-depth').innerText = depth.toFixed(1);
+            document.getElementById('val-gravity').innerText = gravity.toFixed(1);
+
+            document.getElementById('res-ph').innerText = Math.round(ph).toLocaleString();
+            document.getElementById('res-pabs').innerText = Math.round(pAbs).toLocaleString();
+
+            document.getElementById('gauge-live-text').innerText = (ph / 1000).toFixed(1) + " kPa";
+
+            // Visual depth mapping (0.5m to 10m maps to top 5% to 85%)
+            let topPercent = 5 + (depth / 10.0) * 80;
+            document.getElementById('sub-element').style.top = topPercent + "%";
+
+            // Status label update
+            let status = document.getElementById('hydro-status');
+            if(ph < 20000) {
+                status.innerText = "Tekanan Rendah (Aman)";
+                status.className = "font-bold text-emerald-400";
+            } else if (ph < 70000) {
+                status.innerText = "Tekanan Sedang";
+                status.className = "font-bold text-amber-400";
+            } else {
+                status.innerText = "Tekanan Sangat Tinggi (Bahaya Dasar Laut!)";
+                status.className = "font-bold text-rose-400 animate-pulse";
+            }
+        }
+
+        function updateLabPascal() {
+            let f1 = parseFloat(document.getElementById('slider-f1').value);
+            let a1 = parseFloat(document.getElementById('slider-a1').value);
+            let a2 = parseFloat(document.getElementById('slider-a2').value);
+
+            let f2 = (f1 / a1) * a2;
+            let mult = (a2 / a1);
+            let massKg = f2 / 10;
+
+            document.getElementById('val-f1').innerText = f1;
+            document.getElementById('val-a1').innerText = a1.toFixed(2);
+            document.getElementById('val-a2').innerText = a2.toFixed(1);
+
+            document.getElementById('res-f2').innerText = Math.round(f2).toLocaleString();
+            document.getElementById('res-mult').innerText = mult.toFixed(1);
+            document.getElementById('res-mass-car').innerText = Math.round(massKg).toLocaleString() + " kg";
+        }
+
+        let targetDepthPercent = 70; // 70% depth for target
+
+        function updateGameSub() {
+            let subRho = parseFloat(document.getElementById('game-slider-ballast').value);
+            let seaRho = 1025; // Sea water density
+
+            document.getElementById('game-rho-sub').innerText = subRho + " kg/m³";
+
+            let subEl = document.getElementById('game-sub');
+            let badge = document.getElementById('sub-state-badge');
+
+            if(subRho < seaRho - 50) {
+                // Mengapung
+                subEl.style.top = "10%";
+                badge.innerText = "Mengapung (ρ_sub < ρ_air)";
+                badge.className = "bg-emerald-900/80 text-emerald-300 font-mono text-[10px] px-2 py-0.5 rounded-full mt-1";
+            } else if (subRho >= seaRho - 50 && subRho <= seaRho + 50) {
+                // Melayang
+                subEl.style.top = "70%";
+                badge.innerText = "Melayang (ρ_sub ≈ ρ_air)";
+                badge.className = "bg-amber-900/80 text-amber-300 font-mono text-[10px] px-2 py-0.5 rounded-full mt-1";
+            } else {
+                // Tenggelam
+                subEl.style.top = "85%";
+                badge.innerText = "Tenggelam Ke Dasar (ρ_sub > ρ_air)";
+                badge.className = "bg-rose-900/80 text-rose-300 font-mono text-[10px] px-2 py-0.5 rounded-full mt-1";
+            }
+        }
+
+        function checkGameMission() {
+            let subRho = parseFloat(document.getElementById('game-slider-ballast').value);
+            let seaRho = 1025;
+
+            if(subRho >= seaRho - 50 && subRho <= seaRho + 50) {
+                document.getElementById('game-win-overlay').classList.remove('hidden');
+            } else {
+                alert("Posisi belum pas! Atur massa jenis ballast agar mendekati massa jenis air laut (1025 kg/m³) untuk MELAYANG tepat di kedalaman artefak!");
+            }
+        }
+
+        function resetGameMission() {
+            document.getElementById('game-win-overlay').classList.add('hidden');
+            document.getElementById('game-slider-ballast').value = 800;
+            updateGameSub();
+        }
+
+        const quizData = [
+            {q: "Apa definisi dari Tekanan Hidrostatis?", options: ["Tekanan zat padat pada bidang datar", "Tekanan yang diberikan zat cair diam pada kedalaman tertentu", "Tekanan udara di atmosfer bumi", "Gaya apung ke atas"], a: 1},
+            {q: "Rumus matematis untuk menghitung tekanan hidrostatis adalah...", options: ["P = F / A", "P = m × g", "P = ρ × g × h", "P = F₁ × A₂"], a: 2},
+            {q: "Faktor manakah yang TIDAK memengaruhi besarnya Tekanan Hidrostatis?", options: ["Kedalaman zat cair (h)", "Massa jenis zat cair (ρ)", "Percepatan gravitasi (g)", "Luas permukaan wadah air"], a: 3},
+            {q: "Mengapa dinding bendungan air di bagian bawah dibangun lebih tebal dari bagian atas?", options: ["Agar terlihat indah", "Karena tekanan air di dasar sangat besar akibat kedalamannya", "Agar air tidak menguap", "Karena gravitasi di dasar bendungan hilang"], a: 1},
+            {q: "Satuan Internasional (SI) untuk Tekanan Hidrostatis adalah...", options: ["Newton (N)", "Pascal (Pa) atau N/m²", "Joule (J)", "Kg/m³"], a: 1},
+            {q: "Hukum yang menyatakan bahwa tekanan pada zat cair dalam ruang tertutup diteruskan ke segala arah sama besar adalah...", options: ["Hukum Archimedes", "Hukum Pascal", "Hukum Newton", "Hukum Boyles"], a: 1},
+            {q: "Prinsip Hukum Pascal banyak dimanfaatkan pada peralatan sehari-hari yaitu...", options: ["Kapal Laut", "Dongkrak Hidrolik Pencuci Mobil", "Termometer", "Balon Udara"], a: 1},
+            {q: "Sebuah benda dikatakan MENGAPUNG di dalam air jika...", options: ["Massa jenis benda lebih besar dari air", "Massa jenis benda sama dengan air", "Massa jenis benda lebih kecil dari air", "Berat benda sama dengan nol"], a: 2},
+            {q: "Sesuai Hukum Archimedes, gaya apung ke atas (Fa) yang dialami benda sama dengan...", options: ["Berat total benda", "Berat zat cair yang dipindahkan oleh benda", "Volume total wadah", "Massa jenis air"], a: 1},
+            {q: "(Hitungan) Berapakah tekanan hidrostatis pada kedalaman 4 meter di dalam air murni (ρ=1000 kg/m³, g=10 m/s²)?", options: ["400 Pa", "4.000 Pa", "40.000 Pa", "400.000 Pa"], a: 2},
+            {q: "(Hitungan) Sebuah dongkrak hidrolik memiliki penampang A1 = 0.2 m² dan A2 = 2 m². Jika gaya F1 = 100 N, maka F2 adalah...", options: ["10 N", "100 N", "1.000 N", "2.000 N"], a: 2},
+            {q: "Konsep Tekanan Mutlak (Absolute Pressure) memperhitungkan...", options: ["Tekanan hidrostatis + Tekanan atmosfer udara", "Tekanan hidrostatis dikurangi gaya apung", "Massa jenis dikali volume", "Hanya gaya gravitasi"], a: 0},
+            {q: "Pipa U di laboratorium digunakan untuk mengukur...", options: ["Suhu cairan", "Massa jenis zat cair tak dikenal", "Kecepatan angin", "Tekanan darah"], a: 1},
+            {q: "Prinsip Bernoulli menyatakan bahwa jika kecepatan aliran fluida meningkat, maka tekanannya akan...", options: ["Meningkat pesat", "Sama saja", "Menjadi menurun/mengecil", "Menjadi nol"], a: 2},
+            {q: "Kapal selam dapat melayang di dalam air laut karena mengatur...", options: ["Kecepatan baling-baling", "Jumlah udara & air di tangki ballast (menyesuaikan massa jenis)", "Panjang periskop", "Warna cat kapal"], a: 1},
+            {q: "Surah Al-Qur'an manakah yang menjelaskan fenomena kegelapan dan 'gelombang di atas gelombang' di laut dalam?", options: ["QS. Al-Baqarah: 286", "QS. An-Nur: 40", "QS. Al-Ikhlas: 1", "QS. Yasin: 12"], a: 1},
+            {q: "Istilah 'Bahrin Lujjiyyn' dalam tafsir sains QS. An-Nur: 40 bermakna...", options: ["Danau yang dangkal", "Laut yang sangat dalam", "Sungai air tawar", "Mata air di gunung"], a: 1},
+            {q: "Hikmah spiritual dari kedalaman air dan tekanan hidrostatis adalah...", options: ["Orang berilmu dalam makin sombong", "Semakin dalam ilmu & keikhlasan, semakin mantap & khusyuk imannya", "Tekanan hidup harus dihindari", "Manusia bisa hidup di dasar laut tanpa alat"], a: 1},
+            {q: "Fenomena pertemuan dua laut yang tidak bercampur karena perbedaan massa jenis & salinitas dijelaskan dalam...", options: ["QS. Ar-Rahman: 19-20", "QS. Al-Kahfi: 10", "QS. Al-Mulk: 1", "QS. An-Naba: 5"], a: 0},
+            {q: "Atraksi penyelam bebas tanpa tabung oksigen membatasi kedalamannya karena ancaman utama...", options: ["Suhu air panas", "Barotrauma akibat Tekanan Hidrostatis raksasa di dasar", "Serangan hiu", "Gelombang udara"], a: 1}
+        ];
+
+        let currentQIndex = 0;
+        let scoreCounter = 0;
+        let isAnswered = false;
+
+        function startQuiz() {
+            currentQIndex = 0;
+            scoreCounter = 0;
+            document.getElementById('q-score').innerText = "0";
+            document.getElementById('quiz-intro').classList.add('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            document.getElementById('btn-next-q').classList.add('hidden');
+            document.getElementById('feedback-container').classList.add('hidden');
+            
+            let qData = quizData[currentQIndex];
+            document.getElementById('q-current').innerText = currentQIndex + 1;
+            document.getElementById('question-text').innerText = `${currentQIndex + 1}. ${qData.q}`;
+            
+            let optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            qData.options.forEach((opt, idx) => {
+                let btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-sky-500 hover:bg-sky-50 transition font-medium text-slate-800 bg-white shadow-sm flex items-center";
+                btn.innerHTML = `<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 text-sky-700 mr-3 font-bold text-sm shrink-0">${String.fromCharCode(65+idx)}</span> <span>${opt}</span>`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+
+            let correctIndex = quizData[currentQIndex].a;
+            let buttons = document.getElementById('options-container').querySelectorAll('button');
+
+            let feedback = document.getElementById('feedback-container');
+
+            if(selectedIndex === correctIndex) {
+                btnElement.classList.replace('border-slate-200', 'border-emerald-500');
+                btnElement.classList.add('bg-emerald-50', 'text-emerald-900');
+                scoreCounter += 5; // 20 * 5 = 100
+                document.getElementById('q-score').innerText = scoreCounter;
+                
+                feedback.innerText = "Jawaban Benar! Luar biasa!";
+                feedback.className = "mt-6 p-4 rounded-xl font-bold text-sm text-center bg-emerald-100 text-emerald-800 border border-emerald-300";
+            } else {
+                btnElement.classList.replace('border-slate-200', 'border-rose-500');
+                btnElement.classList.add('bg-rose-50', 'text-rose-900');
+                
+                buttons[correctIndex].classList.replace('border-slate-200', 'border-emerald-500');
+                buttons[correctIndex].classList.add('bg-emerald-50');
+
+                feedback.innerText = "Jawaban Kurang Tepat.";
+                feedback.className = "mt-6 p-4 rounded-xl font-bold text-sm text-center bg-rose-100 text-rose-800 border border-rose-300";
+            }
+            
+            feedback.classList.remove('hidden');
+            document.getElementById('btn-next-q').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if(currentQIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = scoreCounter;
+            
+            let msg = "";
+            let icon = "";
+            if(scoreCounter >= 90) {
+                msg = "Sempurna! Kamu adalah Ahli Fisika Fluida Sejati. Pemahaman materi dan tadabbur ayat Al-Qur'an kamu sangat luar biasa!";
+                icon = '<i class="fas fa-trophy text-amber-400"></i>';
+            } else if (scoreCounter >= 70) {
+                msg = "Hasil yang sangat bagus! Kamu sudah memahami konsep Tekanan Hidrostatis, Hukum Pascal, dan Archimedes dengan baik.";
+                icon = '<i class="fas fa-medal text-sky-400"></i>';
+            } else {
+                msg = "Tetap semangat! Pelajari kembali halaman materi dan cobalah eksperimen di Virtual Lab.";
+                icon = '<i class="fas fa-book-reader text-slate-400"></i>';
+            }
+            
+            document.getElementById('result-message').innerText = msg;
+            document.getElementById('result-icon').innerHTML = icon;
+        }
+
+        function resetQuiz() {
+            startQuiz();
+        }
+
+        window.onload = function() {
+            showMateriPage(1);
+            updateLabHydro();
+            updateGameSub();
+        };
+    </script>
+</body>
+</html>
